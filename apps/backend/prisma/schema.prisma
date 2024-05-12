@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id      Int     @id @default(autoincrement())
+  address String  @unique
+  name    String?
+  tasks   Task[]
+}
+
+model Task {
+  id          Int          @id @default(autoincrement())
+  title       String       @default("Select The most Reasonable answer")
+  User        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  signature   String // name of currency
+  amount      Decimal      @db.Decimal(20, 10) // Adjust precision and scale as needed
+  options     Options[]
+  submissions Submission[]
+}
+
+model Options {
+  id              Int          @id @default(autoincrement())
+  imageUrl        String
+  optionId        String
+  Task            Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId          Int
+  submissionCount Int          @default(0)
+  submission      Submission[]
+}
+
+model Worker {
+  id          Int          @id @default(autoincrement())
+  address     String       @unique
+  name        String?
+  submissions Submission[]
+  Balance     Balance?
+}
+
+model Balance {
+  id            Int     @id @default(autoincrement())
+  balanceAmount Decimal @default(0) @db.Decimal(20, 10)
+  pendingAmount Decimal @default(0) @db.Decimal(20, 10)
+  lockedAmount  Decimal @default(0) @db.Decimal(20, 10)
+
+  workerId Int    @unique
+  worker   Worker @relation(fields: [workerId], references: [id])
+}
+
+model Submission {
+  id     Int     @id @default(autoincrement())
+  amount Decimal @default(0) @db.Decimal(20, 10)
+
+  Worker    Worker  @relation(fields: [workerId], references: [id])
+  workerId  Int
+  Options   Options @relation(fields: [optionsId], references: [id])
+  optionsId Int
+  Task      Task    @relation(fields: [taskId], references: [id])
+  taskId    Int
+}
