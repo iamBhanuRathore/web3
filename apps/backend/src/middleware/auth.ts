@@ -37,7 +37,7 @@ export const authMiddleware = async (
     if (!user) {
       return res.status(403).json({
         success: false,
-        message: "Unauthorized",
+        message: "Unauthorized Access",
       });
     }
     req.user = user;

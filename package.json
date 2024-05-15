@@ -10,7 +10,6 @@
   "devDependencies": {
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
-    "@repo/schemas": "*",
     "@types/node": "^20.12.11",
     "prettier": "^3.2.5",
     "turbo": "latest"

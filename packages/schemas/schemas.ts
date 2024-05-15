@@ -1,5 +1,12 @@
 import { z } from "zod";
 
-export const userSchema = z.object({
-  name: z.string().min(5),
+export const createTaskSchema = z.object({
+  title: z.string(),
+  signature: z.string(),
+  options: z.array(
+    z.object({
+      imageUrl: z.string(),
+      index: z.number().int().positive(),
+    })
+  ),
 });

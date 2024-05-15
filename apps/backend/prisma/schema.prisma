@@ -34,7 +34,7 @@ model Task {
 model Options {
   id              Int          @id @default(autoincrement())
   imageUrl        String
-  optionId        String
+  optionId        String // index of the option from the user perspective
   Task            Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
   taskId          Int
   submissionCount Int          @default(0)
