@@ -1,9 +1,9 @@
+import { userSchema } from "@repo/schemas/schemas";
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { sign as jwtSign } from "jsonwebtoken";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-
+import { S3Client } from "@aws-sdk/client-s3";
+import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 const db = new PrismaClient();
 const signIn = async (req: Request, res: Response) => {
   const walletAddress = "FJX3mwRGYdmUMmGVAUHTKDGwUHUzTsrrYfKc1Q9u8zzR";
@@ -33,16 +33,34 @@ const signIn = async (req: Request, res: Response) => {
 };
 
 export const presignedUrl = async (req: Request, res: Response) => {
-  const userId = req.userId;
+  const userId = req.user.id;
   // const userId = "bhanu";
-  const s3client = new S3Client();
-  const command = new PutObjectCommand({
-    Bucket: "web3-kirat-pes",
-    Key: `web3-kirat-images/${userId}`,
+  const s3client = new S3Client({
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY!,
+      secretAccessKey: process.env.AWS_SECRET_KEY!,
+    },
   });
-  const preSignedUrl = await getSignedUrl(s3client, command, {
-    expiresIn: 3600,
+  const { fields, url } = await createPresignedPost(s3client, {
+    Bucket: process.env.BUCKET_NAME!,
+    Key: `${process.env.BUCKET_KEY}/${userId}/${Date.now()}-image.jpg`,
+    Conditions: [["content-length-range", 0, 5 * 1024 * 1024]],
+    Fields: {
+      "Content-Type": "image/png",
+    },
+    Expires: 3600,
+  });
+  console.log({ url, fields });
+  return res.json({
+    success: true,
+    data: {
+      url,
+      fields,
+    },
   });
 };
+export const createTask = async (req: Request, res: Response) => {
+  // userSchema;
+};
 
-export default { signIn, presignedUrl };
+export default { signIn, createTask, presignedUrl };
