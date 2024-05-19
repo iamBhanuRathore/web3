@@ -1,6 +1,8 @@
+import { getNextTask } from "./../utils/getNextTask";
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { sign as jwtSign } from "jsonwebtoken";
+import { submitTaskSchema } from "@repo/schemas/schemas";
 const db = new PrismaClient();
 export const signIn = async (req: Request, res: Response) => {
   const walletAddress = "wewewew";
@@ -32,24 +34,7 @@ export const signIn = async (req: Request, res: Response) => {
   });
 };
 export const nextTask = async (req: Request, res: Response) => {
-  const nextTask = await db.task.findFirst({
-    where: {
-      submissions: {
-        none: {
-          workerId: req.worker.id,
-        },
-      },
-      active: true, // to not get the done tasks
-    },
-    // include: {
-    //   options: true,
-    // },
-    select: {
-      title: true,
-      options: true,
-    },
-  });
-
+  const nextTask = await getNextTask(req.worker.id);
   if (!nextTask) {
     return res.status(411).json({
       success: false,
@@ -61,6 +46,35 @@ export const nextTask = async (req: Request, res: Response) => {
     nextTask,
   });
 };
-export const postSubmission = async (req: Request, res: Response) => {};
+export const postSubmission = async (req: Request, res: Response) => {
+  const body = req.body;
+  const { success, data } = submitTaskSchema.safeParse(body);
+  if (!success) {
+    return res.status(411).json({
+      succes: false,
+      message: "Incorrect Inputs",
+    });
+  }
+  // this is the task which the worker have to submit to get to the next task
+  const dbTask = await getNextTask(req.worker.id);
+  if (!dbTask || dbTask.id !== parseInt(data.taskId)) {
+    return res.status(411).json({
+      succes: false,
+      mwssage: "Incorrect Inputs",
+    });
+  }
+  const submitTask = db.task.update({
+    where: {
+      id: parseInt(data.taskId),
+    },
+    data: {
+      submissions: {
+        create: {
+          workerId: req.worker.id,
+        },
+      },
+    },
+  });
+};
 
 export default { signIn, nextTask, postSubmission };

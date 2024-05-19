@@ -10,3 +10,7 @@ export const createTaskSchema = z.object({
     })
   ),
 });
+export const submitTaskSchema = z.object({
+  taskId: z.string(),
+  optionId: z.number(),
+});
