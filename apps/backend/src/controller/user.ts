@@ -113,7 +113,7 @@ export const getTask = async (req: Request, res: Response) => {
         ...(taskId && { id: parseInt(taskId) }), // Conditionally add taskId to the where clause
       },
       include: {
-        ...(taskId && { options: true }), // Conditionally add taskId to the where clause
+        ...(taskId && { options: true }), // If a taskId is present then also get the options else only tasks only
       },
     });
 

@@ -26,6 +26,7 @@ model Task {
   User        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
   signature   String // name of currency
+  active      Boolean      @default(true)
   amount      Decimal      @db.Decimal(20, 10) // Adjust precision and scale as needed
   options     Options[]
   submissions Submission[]
@@ -69,4 +70,6 @@ model Submission {
   optionsId Int
   Task      Task    @relation(fields: [taskId], references: [id])
   taskId    Int
+
+  @@unique([taskId, workerId])
 }
