@@ -8,11 +8,8 @@ export const getNextTask = async (workerId: number) => {
           workerId: workerId,
         },
       },
-      active: true, // to not get the done tasks
+      active: true, // to not get the closed tasks
     },
-    // include: {
-    //   options: true,
-    // },
     select: {
       id: true,
       title: true,

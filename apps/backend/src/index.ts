@@ -1,11 +1,11 @@
 // const express = require("express");
-import expres from "express";
+import express from "express";
 import userRouter from "./routes/user";
 import workerRouter from "./routes/worker";
-const app = expres();
+const app = express();
 
 const port = process.env.PORT || 4000;
-app.use(expres.json());
+app.use(express.json());
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/worker", workerRouter);
 app.use("*", (req, res) => {

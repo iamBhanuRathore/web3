@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import { sign as jwtSign } from "jsonwebtoken";
 import { S3Client } from "@aws-sdk/client-s3";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
+import { TOTAL_DECIMALS } from "../constants";
 const db = new PrismaClient();
 const signIn = async (req: Request, res: Response) => {
   const walletAddress = "FJX3mwRGYdmUMmGVAUHTKDGwUHUzTsrrYfKc1Q9u8zzR";
@@ -67,21 +68,21 @@ export const createTask = async (req: Request, res: Response) => {
     return res.status(400).json({
       success: false,
       message: "Wrong Inputs",
+      error: taskData.error,
     });
   }
 
   try {
-    const { title, options } = taskData.data;
-
+    const { title, options, signature } = taskData.data;
     const task = await db.task.create({
       data: {
         title,
-        amount: 20, // Assuming this is a static value, you can change as needed
-        signature: "random string", // Assuming this is a static value, you can change as needed
+        amount: 20 * TOTAL_DECIMALS, // TODO: inputs from the user
+        signature: "random string", // TODO: inputs from the user
         options: {
           create: options.map((option) => ({
             imageUrl: option.imageUrl,
-            optionId: String(option.index),
+            optionIndex: String(option.index),
           })),
         },
         userId: req.user.id,
@@ -105,7 +106,7 @@ export const createTask = async (req: Request, res: Response) => {
   }
 };
 export const getTask = async (req: Request, res: Response) => {
-  const taskId = req.query.taskId as string;
+  const taskId = req.query.taskId as string | undefined;
   try {
     const task = await db.task.findMany({
       where: {
@@ -116,6 +117,12 @@ export const getTask = async (req: Request, res: Response) => {
         ...(taskId && { options: true }), // If a taskId is present then also get the options else only tasks only
       },
     });
+    if (!task.length) {
+      return res.status(400).json({
+        success: false,
+        message: "No task found with this taskId",
+      });
+    }
 
     return res.status(201).json({
       success: true,

@@ -14,10 +14,11 @@ datasource db {
 }
 
 model User {
-  id      Int     @id @default(autoincrement())
-  address String  @unique
+  id      Int       @id @default(autoincrement())
+  address String    @unique
   name    String?
   tasks   Task[]
+  Payouts Payouts[]
 }
 
 model Task {
@@ -27,7 +28,7 @@ model Task {
   userId      Int
   signature   String // name of currency
   active      Boolean      @default(true)
-  amount      Decimal      @db.Decimal(20, 10) // Adjust precision and scale as needed
+  amount      Int          @default(0) // Saving in Lamports
   options     Options[]
   submissions Submission[]
 }
@@ -51,25 +52,40 @@ model Worker {
 }
 
 model Balance {
-  id            Int     @id @default(autoincrement())
-  balanceAmount Decimal @default(0) @db.Decimal(20, 10)
-  pendingAmount Decimal @default(0) @db.Decimal(20, 10)
-  lockedAmount  Decimal @default(0) @db.Decimal(20, 10)
+  id            Int @id @default(autoincrement())
+  balanceAmount Int @default(0) // Saving in Lamports
+  pendingAmount Int @default(0) // Saving in Lamports
+  lockedAmount  Int @default(0) // Saving in Lamports
 
   workerId Int    @unique
   worker   Worker @relation(fields: [workerId], references: [id])
 }
 
 model Submission {
-  id     Int     @id @default(autoincrement())
-  amount Decimal @default(0) @db.Decimal(20, 10)
+  id     Int @id @default(autoincrement())
+  amount Int @default(0) // Saving in Lamports
 
-  Worker   Worker  @relation(fields: [workerId], references: [id])
   workerId Int
-  Options  Options @relation(fields: [optionId], references: [id])
+  Worker   Worker  @relation(fields: [workerId], references: [id])
   optionId Int
-  Task     Task    @relation(fields: [taskId], references: [id])
+  Options  Options @relation(fields: [optionId], references: [id])
   taskId   Int
+  Task     Task    @relation(fields: [taskId], references: [id])
 
   @@unique([taskId, workerId])
+}
+
+enum TxnStatus {
+  PROCESSING
+  SUCCESS
+  FAILURE
+}
+
+model Payouts {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
+  amount    Int
+  signature String
+  status    TxnStatus
 }
