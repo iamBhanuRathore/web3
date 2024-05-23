@@ -1,28 +1,14 @@
-import { Button } from "@repo/ui/src/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/src/components/ui/card";
+import { Button } from "@repo/ui/components/ui/button";
+
 const Header = () => {
   return (
     <>
       <div className="flex w-full justify-between px-6 py-3 border-b-2 shadow-gray-600 shadow-md border-gray-300">
         <p>Web 3 </p>
         <div>
-          <Button variant="destructive">Connect Wallet</Button>
+          <Button>Connect Wallet</Button>
         </div>
       </div>
-      <Card>
-        <CardContent>
-          <CardHeader>
-            <CardTitle>hello </CardTitle>
-          </CardHeader>
-        </CardContent>
-      </Card>
     </>
   );
 };

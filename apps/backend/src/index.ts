@@ -1,4 +1,3 @@
-// const express = require("express");
 import express from "express";
 import userRouter from "./routes/user";
 import workerRouter from "./routes/worker";
