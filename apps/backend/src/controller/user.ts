@@ -51,7 +51,7 @@ export const presignedUrl = async (req: Request, res: Response) => {
     },
     Expires: 3600,
   });
-  console.log({ url, fields });
+  // console.log({ url, fields });
   return res.json({
     success: true,
     data: {
