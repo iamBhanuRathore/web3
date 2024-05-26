@@ -37,6 +37,7 @@ export const presignedUrl = async (req: Request, res: Response) => {
   const userId = req.user.id;
   // const userId = "bhanu";
   const s3client = new S3Client({
+    region: process.env.AWS_REGION || "us-west-2", // Ensure the region is set
     credentials: {
       accessKeyId: process.env.AWS_ACCESS_KEY!,
       secretAccessKey: process.env.AWS_SECRET_KEY!,
