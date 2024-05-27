@@ -8,7 +8,7 @@ import { ThemeProvider } from "./providers/theme-provider.tsx";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Router>
-      <ThemeProvider defaultTheme="dark" storageKey="user-web-3-client-theme">
+      <ThemeProvider defaultTheme="dark" storageKey="worker-web-3-client-theme">
         <App />
       </ThemeProvider>
     </Router>

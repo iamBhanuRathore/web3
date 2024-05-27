@@ -62,13 +62,13 @@ const FormComponent = ({ className }: Props) => {
       },
       {
         headers: {
-          Authorization: localStorage.getItem("web3-token"),
+          Authorization: localStorage.getItem("web3-user-token"),
         },
       }
     );
     form.reset();
     alert("Successfully created the task");
-    navigate(`/task/${data.id}`);
+    navigate(`/task?taskId=${data.id}`);
   };
   // console.log(form.formState.errors);
   // Function to handle file upload
@@ -81,7 +81,7 @@ const FormComponent = ({ className }: Props) => {
           // Get the presigned URL from the backend
           const response = await axios.get(`${BACKEND_URL}/user/presignedUrl`, {
             headers: {
-              Authorization: localStorage.getItem("web3-token") || "",
+              Authorization: localStorage.getItem("web3-user-token") || "",
             },
           });
 

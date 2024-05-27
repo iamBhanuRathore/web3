@@ -1,4 +1,3 @@
-import Header from "@/components/header";
 import FormComponent from "@/components/form-component";
 const HomePage = () => {
   return (

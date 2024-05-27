@@ -56,7 +56,7 @@ export const workerAuthMiddleware = async (
 ) => {
   const authHeader = req.header("Authorization") ?? "";
   if (!authHeader) {
-    return res.json({
+    return res.status(401).json({
       success: false,
       message: "Auth header is not present",
     });
