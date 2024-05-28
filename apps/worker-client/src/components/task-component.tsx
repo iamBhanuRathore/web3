@@ -11,6 +11,7 @@ import {
 import { Button } from "./ui/button";
 const TaskComponent = () => {
   const [task, setTask] = useState<any>();
+  const [selectedOption, setSelectedOption] = useState<any>({});
   useEffect(() => {
     (async () => {
       const { data } = await axios.get(`${BACKEND_URL}/worker/nextTask`, {
@@ -21,6 +22,22 @@ const TaskComponent = () => {
       setTask(data.nextTask);
     })();
   }, []);
+  const handleSubmitTask = async () => {
+    const { data } = await axios.post(
+      `${BACKEND_URL}/worker/postSubmission`,
+      {
+        taskId: selectedOption.taskId,
+        optionId: selectedOption.id,
+      },
+      {
+        headers: {
+          Authorization: localStorage.getItem("web3-worker-token"),
+        },
+      }
+    );
+    console.log(data);
+  };
+  console.log(selectedOption);
   return (
     // <div className="h-full w-full flex items-stretch py-10">
     <Card className="w-3/5 mx-auto">
@@ -35,6 +52,7 @@ const TaskComponent = () => {
                 className="peer hidden"
                 type="radio"
                 name="taskOption"
+                onClick={() => setSelectedOption(item)}
                 id={ind}
               />
               <label
@@ -50,7 +68,9 @@ const TaskComponent = () => {
         </div>
       </CardContent>
       <CardFooter className="flex justify-end">
-        <Button variant="destructive">Submit</Button>
+        <Button onClick={handleSubmitTask} variant="destructive">
+          Submit
+        </Button>
       </CardFooter>
     </Card>
     // </div>
