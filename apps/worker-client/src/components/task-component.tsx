@@ -11,18 +11,35 @@ import {
 import { Button } from "./ui/button";
 const TaskComponent = () => {
   const [task, setTask] = useState<any>();
+  const [error, setError] = useState("");
+  const [loading, setloading] = useState(true);
   const [selectedOption, setSelectedOption] = useState<any>({});
+  const getNewTask = async () => {
+    const { data } = await axios.get(`${BACKEND_URL}/worker/nextTask`, {
+      headers: {
+        Authorization: localStorage.getItem("web3-worker-token"),
+      },
+    });
+    return data;
+  };
   useEffect(() => {
     (async () => {
-      const { data } = await axios.get(`${BACKEND_URL}/worker/nextTask`, {
-        headers: {
-          Authorization: localStorage.getItem("web3-worker-token"),
-        },
-      });
-      setTask(data.nextTask);
+      setloading(true);
+      try {
+        const data = await getNewTask();
+        setTask(data.nextTask);
+      } catch (error: any) {
+        setError(error.response.data.message);
+      } finally {
+        setloading(false);
+      }
     })();
   }, []);
   const handleSubmitTask = async () => {
+    if (!selectedOption.id) {
+      alert("Select An Option before submitting");
+      return;
+    }
     const { data } = await axios.post(
       `${BACKEND_URL}/worker/postSubmission`,
       {
@@ -38,6 +55,20 @@ const TaskComponent = () => {
     console.log(data);
   };
   console.log(selectedOption);
+  if (loading) {
+    return (
+      <div className="w-full h-full flex text-3xl justify-center items-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="w-full h-full flex text-3xl justify-center items-center">
+        <p>{error}</p>
+      </div>
+    );
+  }
   return (
     // <div className="h-full w-full flex items-stretch py-10">
     <Card className="w-3/5 mx-auto">
