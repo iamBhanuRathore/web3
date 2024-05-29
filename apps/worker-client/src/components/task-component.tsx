@@ -13,46 +13,52 @@ const TaskComponent = () => {
   const [task, setTask] = useState<any>();
   const [error, setError] = useState("");
   const [loading, setloading] = useState(true);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [selectedOption, setSelectedOption] = useState<any>({});
   const getNewTask = async () => {
-    const { data } = await axios.get(`${BACKEND_URL}/worker/nextTask`, {
-      headers: {
-        Authorization: localStorage.getItem("web3-worker-token"),
-      },
-    });
-    return data;
+    setloading(true);
+    try {
+      const { data } = await axios.get(`${BACKEND_URL}/worker/nextTask`, {
+        headers: {
+          Authorization: localStorage.getItem("web3-worker-token"),
+        },
+      });
+      setTask(data.nextTask);
+    } catch (error: any) {
+      setError(error.response.data.message);
+    } finally {
+      setloading(false);
+    }
   };
   useEffect(() => {
-    (async () => {
-      setloading(true);
-      try {
-        const data = await getNewTask();
-        setTask(data.nextTask);
-      } catch (error: any) {
-        setError(error.response.data.message);
-      } finally {
-        setloading(false);
-      }
-    })();
+    getNewTask();
   }, []);
   const handleSubmitTask = async () => {
     if (!selectedOption.id) {
       alert("Select An Option before submitting");
       return;
     }
-    const { data } = await axios.post(
-      `${BACKEND_URL}/worker/postSubmission`,
-      {
-        taskId: selectedOption.taskId,
-        optionId: selectedOption.id,
-      },
-      {
-        headers: {
-          Authorization: localStorage.getItem("web3-worker-token"),
+    setSubmitLoading(true);
+    try {
+      const { data } = await axios.post(
+        `${BACKEND_URL}/worker/postSubmission`,
+        {
+          taskId: selectedOption.taskId,
+          optionId: selectedOption.id,
         },
-      }
-    );
-    console.log(data);
+        {
+          headers: {
+            Authorization: localStorage.getItem("web3-worker-token"),
+          },
+        }
+      );
+      console.log(data);
+      getNewTask();
+    } catch (error: any) {
+      alert(error.response.data.message || "Internal Server Error");
+    } finally {
+      setSubmitLoading(false);
+    }
   };
   console.log(selectedOption);
   if (loading) {
@@ -82,6 +88,7 @@ const TaskComponent = () => {
               <input
                 className="peer hidden"
                 type="radio"
+                disabled={submitLoading}
                 name="taskOption"
                 onClick={() => setSelectedOption(item)}
                 id={ind}
@@ -99,7 +106,10 @@ const TaskComponent = () => {
         </div>
       </CardContent>
       <CardFooter className="flex justify-end">
-        <Button onClick={handleSubmitTask} variant="destructive">
+        <Button
+          disabled={submitLoading}
+          onClick={handleSubmitTask}
+          variant="destructive">
           Submit
         </Button>
       </CardFooter>
