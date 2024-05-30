@@ -1,14 +1,33 @@
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import { ModeToggle } from "./theme-toggler,";
-
+import {
+  WalletDisconnectButton,
+  WalletMultiButton,
+} from "@solana/wallet-adapter-react-ui";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { useEffect } from "react";
 const Header = () => {
+  const {
+    // connected,
+    publicKey,
+    // wallets
+  } = useWallet();
+  // console.log(
+  //   // wallets
+  //   publicKey
+  // );
+  useEffect(() => {
+    if (!publicKey) return;
+  }, [publicKey]);
   return (
     <>
       <div className="flex w-full justify-between items-center px-6 py-3 border-b-2 shadow-gray-600 shadow-md border-gray-300">
         <p>Web 3 User </p>
         <div className="flex justify-center items-center gap-x-4">
           <ModeToggle />
-          <Button>Connect Wallet</Button>
+          <WalletMultiButton />
+          {/* {connected ? <WalletDisconnectButton /> : <WalletMultiButton />} */}
+          {/* {!connected ? <WalletDisconnectButton /> : <WalletMultiButton />} */}
         </div>
       </div>
     </>
