@@ -6,11 +6,7 @@ const app = express();
 
 const port = process.env.PORT || 4000;
 // Define allowed origins
-const allowedOrigins = [
-  // "*",
-  "http://localhost:5173",
-  "http://localhost:5174",
-];
+const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
 
 // Configure CORS
 // app.use(
@@ -22,6 +18,7 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
+      console.log({ origin });
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
       if (allowedOrigins.indexOf(origin) === -1) {

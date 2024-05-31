@@ -5,17 +5,36 @@ import { sign as jwtSign } from "jsonwebtoken";
 import { S3Client } from "@aws-sdk/client-s3";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 import { TOTAL_DECIMALS } from "../constants";
+
+import { Keypair } from "@solana/web3.js";
+import nacl from "tweetnacl";
+import { decodeUTF8 } from "tweetnacl-util";
+
 const db = new PrismaClient();
 const signIn = async (req: Request, res: Response) => {
-  const walletAddress = "FJX3mwRGYdmUMmGVAUHTKDGwUHUzTsrrYfKc1Q9u8zzR";
-  const name = "Bhanu";
+  const { walletAddress, publicKey } = req.body;
+  const message = new TextEncoder().encode(
+    `http://localhost:5173 wants you to sign in with your Solana account:\n${publicKey.toBase58()}\n\nPlease sign in.`
+  );
+  const result = nacl.sign.detached.verify(
+    message,
+    walletAddress,
+    publicKey.toBytes()
+  );
+  console.log(result);
+  if (!publicKey || !walletAddress) {
+    return res.status(411).json({
+      message: "Wrong Inputs",
+    });
+  }
+  // const name = "Real User";
   const user = await db.user.upsert({
     where: {
       address: walletAddress,
     },
     create: {
       address: walletAddress,
-      name,
+      name: publicKey,
     },
     update: {
       address: walletAddress,
